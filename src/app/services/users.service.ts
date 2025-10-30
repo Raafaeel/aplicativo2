@@ -1,38 +1,34 @@
+// src/app/services/user.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap } from 'rxjs';
+import { Observable } from 'rxjs';
+
+export interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  age: number;
+  email: string;
+  // adicione mais campos conforme a resposta da API
+}
+
+export interface UsersResponse {
+  users: User[];
+  total: number;
+  skip: number;
+  limit: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
+export class UserService {
 
-export class AuthService {
   private apiUrl = 'https://dummyjson.com/users';
-  private userSubject = new BehaviorSubject<any>(null);
-  user$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
-  login(username: string, password: string) {
-    return this.http.get<any>(this.apiUrl, { username, password }).pipe(
-      tap(response => {
-        if (response && response.token) {
-          localStorage.setItem('user', JSON.stringify(response));
-          this.userSubject.next(response);
-        }
-      })
-    );
-  }
+  constructor(private http: HttpClient) { }
 
-  logout() {
-    localStorage.removeItem('user');
-    this.userSubject.next(null);
-  }
-
-  getUser() {
-    return JSON.parse(localStorage.getItem('user') || 'null');
-  }
-
-  isLoggedIn() {
-    return !!this.getUser();
+  getUsers(): Observable<UsersResponse> {
+    return this.http.get<UsersResponse>(this.apiUrl);
   }
 }

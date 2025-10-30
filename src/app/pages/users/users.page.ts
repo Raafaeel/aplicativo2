@@ -1,25 +1,15 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { Component, OnInit } from '@angular/core';
+
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
-  standalone: false,
+  selector: 'app-users',
+  templateUrl: './users.page.html',
+  styleUrls: ['./users.page.scss'],
 })
-export class LoginPage  {
-  username = '';
-  password = '';
-  errorMessage = '';
-  constructor(private auth: AuthService, private router: Router) {}
-  onLogin() {
-    this.auth.login(this.username, this.password).subscribe({
-      next: () => {
-        this.router.navigateByUrl('/home', { replaceUrl: true });
-      },
-      error: () => {
-        this.errorMessage = 'Login inválido';
-      },
-    });
+export class UsersPage implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
   }
+
 }
