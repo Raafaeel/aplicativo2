@@ -1,0 +1,127 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/users"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Editar Usuário</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+
+  <ion-text color="danger" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </ion-text>
+
+  <form *ngIf="!isLoading && user" (ngSubmit)="saveUser()">
+    <ion-list>
+      <!-- ID - apenas leitura -->
+      <ion-item>
+        <ion-label position="floating">ID</ion-label>
+        <ion-input [value]="user.id" disabled></ion-input>
+      </ion-item>
+
+      <!-- Primeiro Nome -->
+      <ion-item>
+        <ion-label position="floating">Primeiro Nome</ion-label>
+        <ion-input [(ngModel)]="user.firstName" name="firstName" required></ion-input>
+      </ion-item>
+
+      <!-- Último Nome -->
+      <ion-item>
+        <ion-label position="floating">Último Nome</ion-label>
+        <ion-input [(ngModel)]="user.lastName" name="lastName" required></ion-input>
+      </ion-item>
+
+      <!-- Email -->
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input [(ngModel)]="user.email" name="email" type="email" required></ion-input>
+      </ion-item>
+
+      <!-- Username -->
+      <ion-item>
+        <ion-label position="floating">Usuário</ion-label>
+        <ion-input [(ngModel)]="user.username" name="username" required></ion-input>
+      </ion-item>
+
+      <!-- Password -->
+      <ion-item>
+        <ion-label position="floating">Senha</ion-label>
+        <ion-input [(ngModel)]="user.password" name="password" type="password" required></ion-input>
+      </ion-item>
+
+      <!-- Data de Nascimento -->
+      <ion-item>
+        <ion-label position="floating">Data de Nascimento</ion-label>
+        <ion-input 
+          type="date"
+          [value]="formatDateForInput(user.birthDate)"
+          (ionChange)="onDateChange($event)"
+          name="birthDate">
+        </ion-input>
+      </ion-item>
+
+      <!-- Tipo Sanguíneo -->
+      <ion-item>
+        <ion-label position="floating">Tipo Sanguíneo</ion-label>
+        <ion-input [(ngModel)]="user.bloodGroup" name="bloodGroup"></ion-input>
+      </ion-item>
+
+      <!-- Altura -->
+      <ion-item>
+        <ion-label position="floating">Altura (cm)</ion-label>
+        <ion-input [(ngModel)]="user.height" name="height" type="number"></ion-input>
+      </ion-item>
+
+      <!-- Peso -->
+      <ion-item>
+        <ion-label position="floating">Peso (kg)</ion-label>
+        <ion-input [(ngModel)]="user.weight" name="weight" type="number"></ion-input>
+      </ion-item>
+
+      <!-- Endereço -->
+      <ion-item-divider>
+        <ion-label>Endereço</ion-label>
+      </ion-item-divider>
+
+      <ion-item>
+        <ion-label position="floating">Rua</ion-label>
+        <ion-input [(ngModel)]="user.address.address" name="address" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Cidade</ion-label>
+        <ion-input [(ngModel)]="user.address.city" name="city" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Estado</ion-label>
+        <ion-input [(ngModel)]="user.address.state" name="state" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">CEP</ion-label>
+        <ion-input [(ngModel)]="user.address.postalCode" name="postalCode" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">País</ion-label>
+        <ion-input [(ngModel)]="user.address.country" name="country" required></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <!-- Botões -->
+    <div class="button-group ion-padding">
+      <ion-button expand="block" color="primary" type="submit">
+        <ion-icon slot="start" name="checkmark"></ion-icon>
+        Salvar
+      </ion-button>
+      <ion-button expand="block" color="medium" (click)="cancel()">
+        <ion-icon slot="start" name="close"></ion-icon>
+        Cancelar
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

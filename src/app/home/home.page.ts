@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
- user: any; // 👈 adicionamos esta propriedade
+  user: any;
 
   constructor(private router: Router) {}
 
@@ -26,5 +26,9 @@ export class HomePage implements OnInit {
   logout() {
     localStorage.removeItem('user');
     this.router.navigate(['/login']);
+  }
+
+  goToUsers() {
+    this.router.navigate(['/users']);
   }
 }

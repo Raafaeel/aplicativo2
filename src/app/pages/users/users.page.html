@@ -1,13 +1,49 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>users</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Usuários</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">users</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-spinner *ngIf="isLoading" name="crescent" class="spinner-center"></ion-spinner>
+
+  <ion-text color="danger" *ngIf="errorMessage" class="ion-padding">
+    <p>{{ errorMessage }}</p>
+  </ion-text>
+
+  <div *ngIf="!isLoading && users.length > 0" class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Data de Nascimento</th>
+          <th>Endereço</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users" class="user-row" (click)="editUser(user)">
+          <td>{{ user.id }}</td>
+          <td>{{ user.firstName }} {{ user.lastName }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ formatDate(user.birthDate) }}</td>
+          <td class="address-cell">{{ getFullAddress(user) }}</td>
+          <td>
+            <ion-button size="small" color="primary">
+              <ion-icon slot="icon-only" name="pencil"></ion-icon>
+            </ion-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ion-text *ngIf="!isLoading && users.length === 0" class="ion-padding">
+    <p>Nenhum usuário encontrado</p>
+  </ion-text>
 </ion-content>

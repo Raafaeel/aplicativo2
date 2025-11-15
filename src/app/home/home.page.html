@@ -11,4 +11,9 @@
 
 <ion-content class="ion-padding">
   <h2>Seja bem-vindo, {{ user?.username }}!</h2>
+  
+  <ion-button expand="block" color="primary" (click)="goToUsers()">
+    <ion-icon slot="start" name="people-outline"></ion-icon>
+    Visualizar Usuários
+  </ion-button>
 </ion-content>
