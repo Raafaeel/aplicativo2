@@ -1,0 +1,81 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+
+  ion-icon {
+    font-size: 80px;
+    color: #ccc;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    color: #666;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #999;
+  }
+}
+
+.attendance-card {
+  margin: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+
+    ion-badge {
+      margin-top: 5px;
+    }
+  }
+
+  ion-card-title {
+    font-weight: 600;
+    font-size: 1.1em;
+  }
+
+  ion-card-subtitle {
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  .attendance-info {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+
+    p {
+      margin: 5px 0;
+      font-size: 0.9em;
+      color: #333;
+    }
+
+    strong {
+      color: #000;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    ion-button {
+      flex: 1;
+      min-width: 80px;
+
+      ion-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+}

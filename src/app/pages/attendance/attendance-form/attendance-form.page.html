@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/attendance"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isNewAttendance ? 'Novo Atendimento' : 'Editar Atendimento' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="saveAttendance()">
+    <ion-list>
+      <!-- Nome do Paciente -->
+      <ion-item>
+        <ion-label position="floating">Nome do Paciente *</ion-label>
+        <ion-input [(ngModel)]="attendance.patientName" name="patientName" required></ion-input>
+      </ion-item>
+
+      <!-- Telefone do Paciente -->
+      <ion-item>
+        <ion-label position="floating">Telefone *</ion-label>
+        <ion-input [(ngModel)]="attendance.patientPhone" name="patientPhone" type="tel"></ion-input>
+      </ion-item>
+
+      <!-- Data -->
+      <ion-item>
+        <ion-label position="floating">Data *</ion-label>
+        <ion-input 
+          type="date"
+          [(ngModel)]="attendance.date"
+          name="date"
+          [min]="getTodayDate()"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <!-- Hora -->
+      <ion-item>
+        <ion-label position="floating">Hora *</ion-label>
+        <ion-input 
+          type="time"
+          [(ngModel)]="attendance.time"
+          name="time"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <!-- Tipo de Serviço -->
+      <ion-item>
+        <ion-label position="floating">Tipo de Serviço *</ion-label>
+        <ion-select [(ngModel)]="attendance.serviceType" name="serviceType" required>
+          <ion-select-option *ngFor="let type of serviceTypes" [value]="type">
+            {{ type }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Observações -->
+      <ion-item>
+        <ion-label position="floating">Observações</ion-label>
+        <ion-textarea [(ngModel)]="attendance.observations" name="observations" rows="4"></ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <!-- Botões -->
+    <div class="button-group ion-padding">
+      <ion-button expand="block" color="primary" type="submit">
+        <ion-icon slot="start" name="checkmark"></ion-icon>
+        Salvar
+      </ion-button>
+      <ion-button expand="block" color="medium" (click)="cancel()">
+        <ion-icon slot="start" name="close"></ion-icon>
+        Cancelar
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

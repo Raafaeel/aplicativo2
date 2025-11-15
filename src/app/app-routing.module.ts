@@ -14,11 +14,32 @@ const routes: Routes = [
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
-  },  {
+  },
+  {
     path: 'users',
-    loadChildren: () => import('./pages/users/users.module').then( m => m.UsersPageModule)
+    loadChildren: () => import('./pages/users/users.module').then(m => m.UsersPageModule)
+  },
+  {
+    path: 'attendance',
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/attendance/attendance-list/attendance-list.page').then(m => m.AttendanceListPage)
+      },
+      {
+        path: ':id/edit',
+        loadComponent: () => import('./pages/attendance/attendance-form/attendance-form.page').then(m => m.AttendanceFormPage)
+      },
+      {
+        path: 'new',
+        loadComponent: () => import('./pages/attendance/attendance-form/attendance-form.page').then(m => m.AttendanceFormPage)
+      }
+    ]
+  },
+  {
+    path: 'attendance-history',
+    loadComponent: () => import('./pages/attendance/attendance-history/attendance-history.page').then(m => m.AttendanceHistoryPage)
   }
-
 ];
 
 @NgModule({

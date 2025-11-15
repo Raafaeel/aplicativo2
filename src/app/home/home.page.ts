@@ -13,12 +13,10 @@ export class HomePage implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit() {
-    // Recupera o usuário salvo no localStorage
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       this.user = JSON.parse(storedUser);
     } else {
-      // Se não houver usuário, redireciona para login
       this.router.navigate(['/login']);
     }
   }
@@ -30,5 +28,9 @@ export class HomePage implements OnInit {
 
   goToUsers() {
     this.router.navigate(['/users']);
+  }
+
+  goToAttendance() {
+    this.router.navigate(['/attendance']);
   }
 }
