@@ -28,14 +28,18 @@ export class AttendanceHistoryPage implements OnInit {
   }
 
   loadAttendances() {
-    this.attendanceService.getCompletedAttendances().subscribe(data => {
-      this.completedAttendances = data.sort((a, b) => {
-        const dateA = new Date(b.date);
-        const dateB = new Date(a.date);
-        return dateB.getTime() - dateA.getTime();
+    this.isLoading = true;
+    // Garante que o serviço foi inicializado
+    this.attendanceService.ensureInitialized().then(() => {
+      this.attendanceService.getCompletedAttendances().subscribe(data => {
+        this.completedAttendances = data.sort((a, b) => {
+          const dateA = new Date(b.date);
+          const dateB = new Date(a.date);
+          return dateB.getTime() - dateA.getTime();
+        });
+        this.filterByStatus();
+        this.isLoading = false;
       });
-      this.filterByStatus();
-      this.isLoading = false;
     });
   }
 

@@ -12,7 +12,6 @@ import { AttendanceService, Attendance } from '../../../services/attendance.serv
   imports: [CommonModule, IonicModule]
 })
 export class AttendanceListPage implements OnInit {
-  attendances: Attendance[] = [];
   futureAttendances: Attendance[] = [];
   isLoading = true;
 
@@ -26,13 +25,23 @@ export class AttendanceListPage implements OnInit {
   }
 
   loadAttendances() {
-    this.attendanceService.getUpcomingAttendances().subscribe(data => {
-      this.futureAttendances = data.sort((a, b) => {
-        const dateA = new Date(a.date + 'T' + a.time);
-        const dateB = new Date(b.date + 'T' + b.time);
-        return dateA.getTime() - dateB.getTime();
+    this.isLoading = true;
+    // Garante que o serviço foi inicializado
+    this.attendanceService.ensureInitialized().then(() => {
+      this.attendanceService.getUpcomingAttendances().subscribe({
+        next: (data) => {
+          this.futureAttendances = data.sort((a, b) => {
+            const dateA = new Date(a.date + 'T' + a.time);
+            const dateB = new Date(b.date + 'T' + b.time);
+            return dateA.getTime() - dateB.getTime();
+          });
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Erro ao carregar atendimentos:', error);
+          this.isLoading = false;
+        }
       });
-      this.isLoading = false;
     });
   }
 
@@ -82,28 +91,28 @@ export class AttendanceListPage implements OnInit {
     this.router.navigate(['/attendance', attendance.id, 'edit']);
   }
 
-  markAsAttended(attendance: Attendance, event: Event) {
+  async markAsAttended(attendance: Attendance, event: Event) {
     event.stopPropagation();
-    this.attendanceService.updateStatus(attendance.id, 'atendido');
+    await this.attendanceService.updateStatus(attendance.id, 'atendido');
     this.loadAttendances();
   }
 
-  markAsCancelled(attendance: Attendance, event: Event) {
+  async markAsCancelled(attendance: Attendance, event: Event) {
     event.stopPropagation();
-    this.attendanceService.updateStatus(attendance.id, 'cancelado');
+    await this.attendanceService.updateStatus(attendance.id, 'cancelado');
     this.loadAttendances();
   }
 
-  markAsTransferred(attendance: Attendance, event: Event) {
+  async markAsTransferred(attendance: Attendance, event: Event) {
     event.stopPropagation();
-    this.attendanceService.updateStatus(attendance.id, 'transferido');
+    await this.attendanceService.updateStatus(attendance.id, 'transferido');
     this.loadAttendances();
   }
 
-  deleteAttendance(attendance: Attendance, event: Event) {
+  async deleteAttendance(attendance: Attendance, event: Event) {
     event.stopPropagation();
     if (confirm('Deseja realmente deletar este atendimento?')) {
-      this.attendanceService.deleteAttendance(attendance.id);
+      await this.attendanceService.deleteAttendance(attendance.id);
       this.loadAttendances();
     }
   }

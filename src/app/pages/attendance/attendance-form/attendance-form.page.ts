@@ -41,19 +41,27 @@ export class AttendanceFormPage implements OnInit {
     }
   }
 
-  saveAttendance() {
+  async saveAttendance() {
     if (!this.attendance.patientName || !this.attendance.date || !this.attendance.time || !this.attendance.serviceType) {
       alert('Preencha todos os campos obrigatórios');
       return;
     }
 
-    if (this.isNewAttendance) {
-      this.attendanceService.createAttendance(this.attendance);
-    } else {
-      this.attendanceService.updateAttendance(this.attendance.id, this.attendance);
+    try {
+      if (this.isNewAttendance) {
+        await this.attendanceService.createAttendance(this.attendance);
+        console.log('Atendimento criado com sucesso:', this.attendance);
+      } else {
+        await this.attendanceService.updateAttendance(this.attendance.id, this.attendance);
+        console.log('Atendimento atualizado com sucesso:', this.attendance);
+      }
+      // Aguardar um pouco para garantir que os dados foram salvos
+      await new Promise(resolve => setTimeout(resolve, 500));
+      this.router.navigate(['/attendance']);
+    } catch (error) {
+      console.error('Erro ao salvar atendimento:', error);
+      alert('Erro ao salvar atendimento');
     }
-
-    this.router.navigate(['/attendance']);
   }
 
   cancel() {

@@ -1,0 +1,46 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Configurações</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Backup e Restauração</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button expand="block" color="primary" (click)="createBackup()" [disabled]="isLoading">
+        <ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+        Criar Backup
+      </ion-button>
+
+      <ion-list-header *ngIf="files.length > 0" class="ion-margin-top">
+        <ion-label>Arquivos Salvos</ion-label>
+      </ion-list-header>
+
+      <ion-list *ngIf="files.length > 0">
+        <ion-item *ngFor="let file of files">
+          <ion-label>
+            <h2>{{ file }}</h2>
+          </ion-label>
+          <ion-buttons slot="end">
+            <ion-button color="primary" (click)="restoreBackup(file)">
+              <ion-icon slot="icon-only" name="arrow-undo-outline"></ion-icon>
+            </ion-button>
+            <ion-button color="danger" (click)="deleteBackup(file)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+      </ion-list>
+
+      <ion-text *ngIf="files.length === 0" color="medium">
+        <p class="ion-text-center">Nenhum arquivo salvo</p>
+      </ion-text>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

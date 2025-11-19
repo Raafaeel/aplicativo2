@@ -33,4 +33,8 @@ export class HomePage implements OnInit {
   goToAttendance() {
     this.router.navigate(['/attendance']);
   }
+
+  goToSettings() {
+    this.router.navigate(['/settings']);
+  }
 }

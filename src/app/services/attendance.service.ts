@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { FileStorageService } from './file-storage.service';
 
 export interface Attendance {
   id: number;
@@ -16,7 +17,6 @@ export interface Attendance {
 }
 
 export interface CreateAttendanceRequest {
-  patientId: number;
   patientName: string;
   patientPhone: string;
   date: string;
@@ -31,22 +31,67 @@ export interface CreateAttendanceRequest {
 export class AttendanceService {
   private attendances$ = new BehaviorSubject<Attendance[]>([]);
   private nextId = 1;
+  private initialized = false;
+  private initPromise: Promise<void> | null = null;
 
-  constructor() {
-    this.loadAttendances();
+  constructor(private fileStorage: FileStorageService) {
+    this.initPromise = this.initialize();
   }
 
-  private loadAttendances(): void {
-    const stored = localStorage.getItem('attendances');
-    if (stored) {
-      const data = JSON.parse(stored);
-      this.attendances$.next(data);
-      this.nextId = Math.max(...data.map((a: Attendance) => a.id), 0) + 1;
+  private async initialize(): Promise<void> {
+    if (!this.initialized) {
+      await this.loadAttendances();
+      this.initialized = true;
     }
   }
 
-  private saveAttendances(): void {
-    localStorage.setItem('attendances', JSON.stringify(this.attendances$.value));
+  private async loadAttendances(): Promise<void> {
+    try {
+      const data = await this.fileStorage.loadAttendancesFromFile();
+      if (data && data.length > 0) {
+        this.attendances$.next(data);
+        this.nextId = Math.max(...data.map((a: Attendance) => a.id), 0) + 1;
+      } else {
+        // Fallback para localStorage
+        const stored = localStorage.getItem('attendances');
+        if (stored) {
+          const parsedData = JSON.parse(stored);
+          this.attendances$.next(parsedData);
+          this.nextId = Math.max(...parsedData.map((a: Attendance) => a.id), 0) + 1;
+        }
+      }
+    } catch (error) {
+      console.warn('Erro ao carregar atendimentos do arquivo:', error);
+      // Fallback para localStorage
+      const stored = localStorage.getItem('attendances');
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          this.attendances$.next(data);
+          this.nextId = Math.max(...data.map((a: Attendance) => a.id), 0) + 1;
+        } catch (parseError) {
+          console.error('Erro ao fazer parse do localStorage:', parseError);
+        }
+      }
+    }
+  }
+
+  private async saveAttendances(): Promise<void> {
+    try {
+      await this.fileStorage.saveAttendancesToFile(this.attendances$.value);
+      localStorage.setItem('attendances', JSON.stringify(this.attendances$.value));
+    } catch (error) {
+      console.error('Erro ao salvar atendimentos:', error);
+      // Tenta salvar apenas no localStorage como fallback
+      localStorage.setItem('attendances', JSON.stringify(this.attendances$.value));
+    }
+  }
+
+  // Aguardar inicialização antes de qualquer operação
+  async ensureInitialized(): Promise<void> {
+    if (this.initPromise) {
+      await this.initPromise;
+    }
   }
 
   getAttendances(): Observable<Attendance[]> {
@@ -57,48 +102,61 @@ export class AttendanceService {
     return this.attendances$.value.find(a => a.id === id);
   }
 
-  createAttendance(request: CreateAttendanceRequest): Attendance {
+  async createAttendance(request: CreateAttendanceRequest): Promise<Attendance> {
+    await this.ensureInitialized();
+    
     const attendance: Attendance = {
       id: this.nextId++,
+      patientId: 0,
       ...request,
       status: 'agendado',
       createdAt: new Date().toISOString()
     };
-    this.attendances$.next([...this.attendances$.value, attendance]);
-    this.saveAttendances();
+    const updatedAttendances = [...this.attendances$.value, attendance];
+    this.attendances$.next(updatedAttendances);
+    await this.saveAttendances();
     return attendance;
   }
 
-  updateAttendance(id: number, updates: Partial<Attendance>): void {
+  async updateAttendance(id: number, updates: Partial<Attendance>): Promise<void> {
+    await this.ensureInitialized();
+    
     const index = this.attendances$.value.findIndex(a => a.id === id);
     if (index > -1) {
       const updated = { ...this.attendances$.value[index], ...updates };
       const newAttendances = [...this.attendances$.value];
       newAttendances[index] = updated;
       this.attendances$.next(newAttendances);
-      this.saveAttendances();
+      await this.saveAttendances();
     }
   }
 
-  deleteAttendance(id: number): void {
-    this.attendances$.next(this.attendances$.value.filter(a => a.id !== id));
-    this.saveAttendances();
+  async deleteAttendance(id: number): Promise<void> {
+    await this.ensureInitialized();
+    
+    const filtered = this.attendances$.value.filter(a => a.id !== id);
+    this.attendances$.next(filtered);
+    await this.saveAttendances();
   }
 
   getUpcomingAttendances(): Observable<Attendance[]> {
-    return new BehaviorSubject(
-      this.attendances$.value.filter(a => a.status === 'agendado' && new Date(a.date + 'T' + a.time) > new Date())
-    ).asObservable();
+    const upcoming = this.attendances$.value.filter(a => {
+      if (a.status !== 'agendado') return false;
+      const attendanceDateTime = new Date(a.date + 'T' + a.time);
+      return attendanceDateTime > new Date();
+    });
+    return new BehaviorSubject(upcoming).asObservable();
   }
 
   getCompletedAttendances(): Observable<Attendance[]> {
-    return new BehaviorSubject(
-      this.attendances$.value.filter(a => ['atendido', 'cancelado', 'transferido'].includes(a.status))
-    ).asObservable();
+    const completed = this.attendances$.value.filter(a => 
+      ['atendido', 'cancelado', 'transferido'].includes(a.status)
+    );
+    return new BehaviorSubject(completed).asObservable();
   }
 
-  updateStatus(id: number, status: 'atendido' | 'cancelado' | 'transferido'): void {
-    this.updateAttendance(id, {
+  async updateStatus(id: number, status: 'atendido' | 'cancelado' | 'transferido'): Promise<void> {
+    await this.updateAttendance(id, {
       status,
       completedAt: status === 'atendido' ? new Date().toISOString() : undefined
     });
